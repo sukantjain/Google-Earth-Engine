@@ -4,7 +4,7 @@ from ee_plugin import Map
 #Define AOI
 point = ee.Geometry.Point(77.411,23.283)
 
-# Load an image Collection. Lnadsat 8
+# Load an image Collection. Landsat 8
 LandsatCollection = ee.ImageCollection("LANDSAT/LC08/C01/T1_SR")\
         .filterDate('2019-01-01', '2020-01-01')\
         .filterBounds(point)
