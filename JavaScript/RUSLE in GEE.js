@@ -1,3 +1,5 @@
+// Watch Video Tutorial https://youtu.be/vhwhPrlxDeg
+
 var CHIRPS = ee.ImageCollection("UCSB-CHG/CHIRPS/PENTAD"),
     soil = ee.Image("OpenLandMap/SOL/SOL_TEXTURE-CLASS_USDA-TT_M/v02"),
     DEM = ee.Image("USGS/SRTMGL1_003"),
