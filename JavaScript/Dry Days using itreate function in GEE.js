@@ -1,3 +1,6 @@
+// Watch Video Tutorial  https://youtu.be/PcayDDiyXWY
+
+
 var viz = {"opacity":0.63,"bands":["precipitation"],"min":0,"max":250,"palette":["280eff","0cffe9","6cff10","fff80e","ff4108"]},
     rain = ee.ImageCollection("UCSB-CHG/CHIRPS/DAILY");
 
