@@ -19,10 +19,10 @@ var soil_class = ee.Image("OpenLandMap/SOL/SOL_TEXTURE-CLASS_USDA-TT_M/v02")
 // Converting soil textute into soil group
 // A == 1, B == 2,  C == 3, D == 4
 var soil_grp = soil_class.expression(
-    "(b('soil') > 10) ? 4" +
-      ": (b('soil') > 4) ? 3" +
-        ": (b('soil') > 1) ? 2" +
-           ": (b('soil') > 0) ? 1" +
+    "(b('soil') > 10) ? 1" +
+      ": (b('soil') > 4) ? 2" +
+        ": (b('soil') > 1) ? 3" +
+           ": (b('soil') > 0) ? 4" +
              ": 0"
 ).rename('soil');
 var modis = ee.ImageCollection('MODIS/006/MCD12Q1')
