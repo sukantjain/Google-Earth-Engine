@@ -1,12 +1,18 @@
 // Watch Video Tutorial https://youtu.be/vhwhPrlxDeg
 
+/////////// Define Data Source /////////////////////
+
 var CHIRPS = ee.ImageCollection("UCSB-CHG/CHIRPS/PENTAD"),
     soil = ee.Image("OpenLandMap/SOL/SOL_TEXTURE-CLASS_USDA-TT_M/v02"),
     DEM = ee.Image("USGS/SRTMGL1_003"),
     s2 = ee.ImageCollection("COPERNICUS/S2"),
     modis = ee.ImageCollection("MODIS/006/MCD12Q1");
 
-//Defining Study Area
+///////////////////// Defining Study Area /////////////////////
+
+//For State Boundary
+// var gaul = ee.FeatureCollection("FAO/GAUL_SIMPLIFIED_500m/2015/level2")
+// var main = gaul.filter(ee.Filter.eq('ADM1_NAME', 'Goa'))
 
 //For Basin Baoundary
 var dataset = ee.FeatureCollection("WWF/HydroSHEDS/v1/Basins/hybas_12")
@@ -21,9 +27,14 @@ var mainID = 4120031730 // Mahi Basin
 
 var main = dataset.filter(ee.Filter.eq('MAIN_BAS', mainID))
 print('No of Subbasins:', main.size());
+
+
+//////////// Define Sub Unit Field (colomn) Name from Feature Collection  ////////////////
+var subUnit_ID = 'HYBAS_ID'  // for HydroSHEDS boundries
+// var subUnit_ID = 'ADM2_NAME'  // for FAO GAUL Admin Boundries
 var aoi = main;
 
-// Defining dates/year
+///////////////////// Defining dates/year /////////////////////
 var date1 = '2017-01-01';
 var date2 = '2018-01-01';
 
@@ -241,7 +252,7 @@ var calculateClassArea = function(feature) {
     })
  
     var result = ee.Dictionary(classAreaLists.flatten())
-    var district = feature.get('HYBAS_ID')
+    var district = feature.get(subUnit_ID)
     return ee.Feature(
       feature.geometry(),
       result.set('district', district))
