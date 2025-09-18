@@ -1,6 +1,9 @@
 //This Script is created by Sukant Jain, 
 //Research Scientist, National Institute of Hydrology, Bhopal
 
+
+/// User Input  /////
+
 // Define your Area of Intersest either via shape file or created Geometry
 var aoi = ee.FeatureCollection("users/sukkiisukant/Shipra_Ujjain");
 
@@ -8,10 +11,25 @@ var aoi = ee.FeatureCollection("users/sukkiisukant/Shipra_Ujjain");
 var startDate = '2019-01-01'
 var endDate = '2020-01-01'
 
-// Year for Land Use
-var year = 2019
+////// Rainfall Data //////
+
+/// Define Rainfall data source
+var rainfall = ee.ImageCollection('UCSB-CHG/CHIRPS/DAILY')
+                  .filter(ee.Filter.date(startDate, endDate))
+
+// User-defined AMC thresholds (based on rainfall in mm over the previous 5 days, typically):
+// AMC I: dry condition → CN is lower
+// AMC II: average condition → baseline CN
+// AMC III: wet condition → CN is higher
+var AMC1_threshold = 13;  // Example: AMC I if 5-day rainfall <= 13 mm
+var AMC3_threshold = 28;  // Example: AMC III if 5-day rainfall > 28 mm
+
+
 
 Map.centerObject(aoi)
+
+////// Soil Data //////
+// Define Soil Texture Data Source
 var soil_class = ee.Image("OpenLandMap/SOL/SOL_TEXTURE-CLASS_USDA-TT_M/v02")
               .select('b0').clip(aoi)
               .rename('soil');
@@ -25,6 +43,13 @@ var soil_grp = soil_class.expression(
            ": (b('soil') > 0) ? 4" +
              ": 0"
 ).rename('soil');
+
+////// LULC  Data //////
+
+// Year for Land Use
+var year = 2019
+
+// Define LULC Data Source
 var modis = ee.ImageCollection('MODIS/006/MCD12Q1')
             .filter(ee.Filter.calendarRange(year,year,'year'))
 var lulc = modis.select('LC_Type1').first().clip(aoi)
@@ -38,7 +63,8 @@ var lulc_soil = lulc.addBands(soil_grp)
 //print (lulc_soil);
 Map.addLayer (lulc_soil, {}, 'Soil & LULC', 0)
 
-// Create CN map using an expression
+//  Assign Curve Number (CN) values based on combinations of soil texture classes and land use/land cover (LULC) categories
+
 var CN_whole = lulc_soil.expression(
     "(b('soil') == 1) and(b('lulc')==1) ? 35" +
      ": (b('soil') == 1) and(b('lulc')==2) ? 25" +
@@ -111,6 +137,10 @@ var CN_whole = lulc_soil.expression(
                      ": (b('soil') == 0) ? 100" +
                     ": 0"
 );
+
+/// End of User input///////
+
+
 var CN2 = CN_whole.clip(aoi).rename('CN2');
 Map.addLayer(CN2, {}, 'CN2 values', 0);
 
@@ -149,8 +179,6 @@ Map.addLayer (S_image3, {}, 'S3', 0)
 //print (rainfall)
 //Map.addLayer (rainfall, {}, 'Rainfall')
 
-var rainfall = ee.ImageCollection('UCSB-CHG/CHIRPS/DAILY')
-                  .filter(ee.Filter.date(startDate, endDate))
 //print (rainfall);
 //Map.addLayer (rainfall, {}, 'Rainfall', 0);
 
@@ -213,8 +241,8 @@ var runoff_func = function(image) {
   
   var AMC = image.select('precipitation_1')
   var ppt = image.select('precipitation')
-  var AMCreplaced = S_image2.where(AMC.lte(13), S_image1);
-  var AMCreplaced2 = AMCreplaced.where(AMC.gt(28), S_image3)
+  var AMCreplaced = S_image2.where(AMC.lte(AMC1_threshold), S_image1);
+  var AMCreplaced2 = AMCreplaced.where(AMC.gt(AMC3_threshold), S_image3)
   var s_value = AMCreplaced2.select('S_value2')
 
   var Q2 = image.expression(
@@ -278,3 +306,4 @@ var chart = ui.Chart.image.series({
  hAxis: {title: 'Dates'},
  });
 print(chart);
+
