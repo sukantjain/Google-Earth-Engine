@@ -91,7 +91,7 @@ Map.addLayer(LS, {min: 0, max: 90, palette: ['a52508','ff3818','fbff18','25cdff'
 
 // **************** C Factor ***************
 
-s2 = s2.filterDate(date1, date2).median().clip(aoi);
+s2 = s2.filterDate(date1, date2).select(['B8', 'B4']).median().clip(aoi);
 var image_ndvi = s2.normalizedDifference(['B8','B4']).rename("NDVI");
 
 Map.addLayer (image_ndvi, {min: 0, max: 0.85, palette: ['FFFFFF','CC9966','CC9900', '996600', '33CC00', '009900','006600','000000']}, 'NDVI', 0);
